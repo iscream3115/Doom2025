@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 212646250304f9641a168c81208f8401, type: 3}
+  m_Name: RocketLauncher
+  m_EditorClassIdentifier: 
+  weaponPrefab: {fileID: 4101753938474168541, guid: 8c198c3b99dec5244a7eb0ec960d4173, type: 3}
+  bullet: {fileID: 6916574029388841171, guid: 97240125c34569240810f121f06c248c, type: 3}
+  isAcquired: 0
+  isHitscan: 0
+  isShotgun: 0
+  pelletNum: 0
+  RateOfFire: 1.3
+  range: 0
+  Damage: 0
+  recoil: 0
+  IsAutomatic: 0
+  magSize: 0
