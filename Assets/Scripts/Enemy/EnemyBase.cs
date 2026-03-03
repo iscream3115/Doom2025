@@ -17,14 +17,28 @@ public class EnemyBase : MonoBehaviour
 
     Animator EnemyAnimator;
 
+    [Header("Detection")]
     [SerializeField] private float viewDistance = 10f;
+
+    [Space(8)]
+    [Header("Movement")]
     [SerializeField] private float lookRotateSpeed = 8f;
     [SerializeField] private float moveDecisionInterval = 0.8f;
     [SerializeField] private float moveStepDistance = 2.5f;
+
+    [Space(8)]
+    [Header("Combat")]
+    [SerializeField] private float meleeAttackRange = 2f;
+    [SerializeField] private float rangedAttackRange = 7f;
+    [SerializeField] private string attackStateTag = "Attack";
+
+    [Space(8)]
+    [Header("Debug")]
     [SerializeField] private bool enableProcessNodeDebugLog = false;
     [SerializeField] private bool drawSightGizmos = true;
 
-    
+    [Space(8)]
+    [Header("Stats")]
     [SerializeField] private int _HP = 5;
     [SerializeField] private GameObject corpse;
 
@@ -41,6 +55,9 @@ public class EnemyBase : MonoBehaviour
     private float nextMoveRouteChangeTime;
 
     protected NavMeshAgent Agent => agent;
+    protected Transform Target => target;
+    protected float MeleeAttackRange => meleeAttackRange;
+    protected float RangedAttackRange => rangedAttackRange;
 
     protected virtual void Attacking() {}
 
@@ -134,10 +151,26 @@ public class EnemyBase : MonoBehaviour
 
     protected bool CanAttackPlayer()
     {
-        //임시. 원거리 공격, 근거리 공격을 위한 사거리를 지정하여 그 안에 플레이어가 들어오면 공격 가능 체크
-        //추가적으로 이미 공격을 하고 있거나, 이동 중인 경우 공격을 할 수 없음.
+        //원거리 공격, 근거리 공격을 위한 사거리를 지정하여 그 안에 플레이어가 들어오면 공격 가능 체크
+        //추가적으로 이미 공격을 하고 있는 경우 공격을 할 수 없음. (공격 판단은 행동 사이클 하나가 끝나고 할 수 있다는 소리)
+        if (target == null || agent == null) return false;
 
-        return false;
+        Vector3 toTarget = target.position - transform.position;
+        toTarget.y = 0f;
+        float distance = toTarget.magnitude;
+
+        bool inMeleeRange = distance <= meleeAttackRange;
+        bool inRangedRange = distance <= rangedAttackRange;
+        if (!inMeleeRange && !inRangedRange) return false;
+
+        if (EnemyAnimator != null)
+        {
+            AnimatorStateInfo stateInfo = EnemyAnimator.GetCurrentAnimatorStateInfo(0);
+            bool isAttackState = !string.IsNullOrEmpty(attackStateTag) && stateInfo.IsTag(attackStateTag);
+            if (isAttackState) return false;
+        }
+
+        return true;
     }
 
     void Moving()
