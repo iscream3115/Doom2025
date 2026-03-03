@@ -40,6 +40,7 @@ namespace Pathfinding.BehaviorTrees
         
         public override Status Process() 
         {
+            MarkProcessing();
             switch (Children[0].Process()) 
             {
                 case Status.Running:
@@ -78,6 +79,7 @@ namespace Pathfinding.BehaviorTrees
 
         public override Status Process()
         {
+            MarkProcessing();
             foreach(var child in SortedChildren)
             {
                 var status = child.Process();
@@ -101,6 +103,7 @@ namespace Pathfinding.BehaviorTrees
         // 순서대로 Child를 실행하며 중간에 Failure 노드를 만나도(default) 인덱스를 증가시켜서 다음 노드 검사
         public override Status Process()
         {
+            MarkProcessing();
             if(currChild < Children.Count)
             {
                 switch(Children[currChild].Process())
@@ -125,6 +128,7 @@ namespace Pathfinding.BehaviorTrees
         //중간에 Failure를 반환한 Node를 한번이라도 만나면 Reset(). 끝까지 갔을 시 Success 반환
         public override Status Process()
         {
+            MarkProcessing();
             if(currChild < Children.Count)
             {
                 switch(Children[currChild].Process())
@@ -157,6 +161,7 @@ namespace Pathfinding.BehaviorTrees
         }
         public override Status Process()
         {
+            MarkProcessing();
             Status status = Children[currChild].Process();
             if (policy.ShouldReturn(status)) 
             {
@@ -202,6 +207,7 @@ namespace Pathfinding.BehaviorTrees
 
         public override Status Process()
         {
+            MarkProcessing();
             var status = action.Process();
             return status;
         }
@@ -213,6 +219,8 @@ namespace Pathfinding.BehaviorTrees
     public class Node
     {
         public enum Status { Success, Failure, Running }
+
+        public static Node LastProcessingNode { get; private set; }
 
         public readonly string name;
         public readonly int priority;
@@ -229,7 +237,16 @@ namespace Pathfinding.BehaviorTrees
 
         public void AddChild(Node child) => Children.Add(child);
 
-        public virtual Status Process() => Children[currChild].Process();
+        protected void MarkProcessing()
+        {
+            LastProcessingNode = this;
+        }
+
+        public virtual Status Process()
+        {
+            MarkProcessing();
+            return Children[currChild].Process();
+        }
         public virtual void Reset()
         {
             currChild = 0;
